@@ -5,12 +5,14 @@ public class Livro {
     private String author;
     private String isbn;
     private int id;
+    private boolean available;
 
     public Livro(String title, String author, String isbn, int id){
         this.title = title;
         this.author = author;
         this.isbn = isbn;
         this.id = id;
+        this.available = true;
     }
 
     public String getTitle() {

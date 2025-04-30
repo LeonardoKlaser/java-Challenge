@@ -1,9 +1,10 @@
 import classes.Livro;
 import classes.Usuario;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
@@ -62,6 +63,7 @@ public class Main {
                     return;
                 case "new-book":
                     AddNewBook(partes[0], partes[1], partes[2]);
+                    break;
                 default:
                     System.out.println("Comando inválido.");
                     mostrarComandos();
@@ -117,6 +119,7 @@ public class Main {
     //region Books
     private static void AddNewBook(String title, String author, String isbn){
         Usuario userTeste = usuarios.get(usuarioAtual);
+
         if(!userTeste.getRole().equals("Admin") ){
             System.out.println("Somente admins pode criar livros");
             return;
@@ -128,13 +131,15 @@ public class Main {
             Livro newBook = new Livro(title, author, isbn, hash);
             livros.put(hash, newBook);
             System.out.println("Livro adicionado");
-            String json = String.format(
-                    "{\n  \"title\": \"%s\",\n  \"author\": \"%s\",\n  \"isbn\": \"%s\",\n  \"id\": \"%d\"\n}",
-                    title.replace("\"", "\\\""),
-                    author.replace("\"", "\\\""),
-                    isbn.replace("\"", "\\\""),
-                    hash
-            );
+            //retornar json
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = "";
+            try
+            {
+                json  = ow.writeValueAsString(newBook);
+            }catch(Exception ex){
+                System.out.println(ex);
+            }
             System.out.println(json);
         }else{
             System.out.println("Esse livro ja existe");
