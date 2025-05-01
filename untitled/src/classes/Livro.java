@@ -3,11 +3,11 @@ package classes;
 public class Livro {
     private String title;
     private String author;
-    private String isbn;
+    private Long isbn;
     private int id;
     private boolean available;
 
-    public Livro(String title, String author, String isbn, int id){
+    public Livro(String title, String author, Long isbn, int id){
         this.title = title;
         this.author = author;
         this.isbn = isbn;
@@ -23,7 +23,7 @@ public class Livro {
         this.title = title;
     }
 
-    public String get () {
+    public String getAuthor () {
         return author;
     }
 
@@ -31,11 +31,20 @@ public class Livro {
         this.author = author;
     }
 
-    public String getIsbn() {
+    public Long getIsbn() {
         return isbn;
     }
 
-    public void SetIsbn(String isbn){
+    public void SetIsbn(Long isbn){
         this.isbn = isbn;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+
+    public boolean getAvailable(){
+        return available;
     }
 }

@@ -1,9 +1,9 @@
 package classes;
 
 public class Usuario {
-    private String Nome;
-    private String Email;
-    private String Role;
+    protected String Nome;
+    protected String Email;
+    protected String Role;
 
     public Usuario(String Nome, String Email, String Role){
         this.Nome = Nome;
