@@ -1,4 +1,4 @@
-package classes;
+package Models;
 
 public class Admin extends Usuario {
     private String document;

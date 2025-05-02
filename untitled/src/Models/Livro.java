@@ -1,4 +1,4 @@
-package classes;
+package Models;
 
 public class Livro {
     private String title;
@@ -46,5 +46,9 @@ public class Livro {
 
     public boolean getAvailable(){
         return available;
+    }
+
+    public void setAvailable(boolean available){
+        this.available = available;
     }
 }

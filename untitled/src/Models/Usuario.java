@@ -1,4 +1,4 @@
-package classes;
+package Models;
 
 public class Usuario {
     protected String Nome;

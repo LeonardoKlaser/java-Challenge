@@ -1,4 +1,4 @@
-package classes;
+package Models;
 
 public class Leitor extends Admin {
     public Leitor(String Nome, String Email, String Role, String document, int id) {
