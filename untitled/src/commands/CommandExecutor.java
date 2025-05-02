@@ -3,6 +3,8 @@ package commands;
 import Storage.DataStore;
 import Models.Admin;
 import Models.Leitor;
+import Models.Usuario;
+import repository.UsersRepository;
 import services.AuthService;
 import services.BibliotecaService;
 
@@ -12,6 +14,7 @@ public class CommandExecutor {
     private static final Scanner scanner = new Scanner(System.in);
     AuthService auth = new AuthService();
     BibliotecaService biblioteca = new BibliotecaService(auth);
+    UsersRepository userRepo = new UsersRepository();
 
     private static String[] formataEntradas(String[] dados){
         for(int i = 0; i < dados.length; i++ ){
@@ -24,19 +27,26 @@ public class CommandExecutor {
     public void executar(){
 
         if (DataStore.getInstance().getUsuarios().isEmpty()) {
-            System.out.print("Nenhum usuário cadastrado. Digite o email do admin: ");
+            System.out.print("Digite o email do admin: ");
             String emailAdmin = scanner.nextLine();
-
-            System.out.print("Digite o Nome do admin: ");
-            String Nome = scanner.nextLine();
 
             System.out.print("Digite o Cpf do admin: ");
             String cpf = scanner.nextLine();
 
-            Admin newUser = new Admin(Nome, emailAdmin,  "Admin", cpf, emailAdmin.hashCode());
-            DataStore.getInstance().getAdmins().put(emailAdmin.hashCode(), newUser);
-            auth.registrarUsuario(newUser);
-            System.out.println("Admin criado: " + emailAdmin);
+            Usuario userToLogin = userRepo.buscarPorEmail(emailAdmin);
+            System.out.println(userToLogin.getRole());
+            if(userToLogin.getRole().equals("admin")){
+                if(!userToLogin.getDocument().equals(cpf)){
+                    System.out.println("Cpf invalido!\nfechando sistema");
+                    return;
+                }
+                auth.registrarUsuario(userToLogin);
+                System.out.println("Admin logado: " + emailAdmin);
+            }else{
+                System.out.println("Este usuario não é um admin ou não existe: " + emailAdmin + "\nfechando sistema");
+                return;
+            }
+
         }
 
         while (true) {
@@ -84,6 +94,9 @@ public class CommandExecutor {
                     break;
                 case "listar":
                     biblioteca.ListaLivros();
+                    break;
+                case "return":
+                    biblioteca.DevolveLivro(Integer.parseInt(partes[1]));
                     break;
                 default:
                     System.out.println("Comando inválido.");

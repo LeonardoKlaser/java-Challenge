@@ -3,16 +3,18 @@ package Models;
 public class Livro {
     private String title;
     private String author;
-    private Long isbn;
+    private String isbn;
     private int id;
-    private boolean available;
+    private Leitor reader;
+    private String available;
 
-    public Livro(String title, String author, Long isbn, int id){
+    public Livro(String title, String author, String isbn){
         this.title = title;
         this.author = author;
         this.isbn = isbn;
-        this.id = id;
-        this.available = true;
+        this.available = "disponivel";
+        this.reader = null;
+
     }
 
     public String getTitle() {
@@ -31,11 +33,11 @@ public class Livro {
         this.author = author;
     }
 
-    public Long getIsbn() {
+    public String getIsbn() {
         return isbn;
     }
 
-    public void SetIsbn(Long isbn){
+    public void SetIsbn(String isbn){
         this.isbn = isbn;
     }
 
@@ -44,11 +46,19 @@ public class Livro {
     }
 
 
-    public boolean getAvailable(){
+    public String getAvailable(){
         return available;
     }
 
-    public void setAvailable(boolean available){
+    public void setAvailable(String available){
         this.available = available;
     }
+
+    public Leitor getReader(){
+        return reader;
+    }
+
+    public void setReader(Leitor reader){
+        this.reader = reader;
+    };
 }
