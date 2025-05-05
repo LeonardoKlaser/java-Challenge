@@ -1,7 +1,7 @@
-package repository;
+package br.com.kunden.repository;
 
 
-import db.SQLiteConnection;
+import br.com.kunden.db.SQLiteConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,17 +14,17 @@ public class BorrowRepository {
         String sql = "INSERT INTO emprestimos(livro_id, leitor_id, data_emprestimo) VALUES(?,?,?)";
         try(Connection conn = SQLiteConnection.connect()){
 
-            if (!livroExiste(bookId, conn)) {
+            if (!bookExists(bookId, conn)) {
                 System.out.println("Livro com ID " + bookId + " não encontrado.");
                 return;
             }
 
-            if (!leitorExiste(readerId, conn)) {
+            if (!readerExists(readerId, conn)) {
                 System.out.println("Leitor com ID " + readerId + " não encontrado ou não é um leitor.");
                 return;
             }
 
-            if (!livroDisponivel(bookId, conn)) {
+            if (!bookAvailable(bookId, conn)) {
                 System.out.println("Livro já está emprestado.");
                 return;
             }
@@ -36,7 +36,7 @@ public class BorrowRepository {
                 stmt.executeUpdate();
                 System.out.println("Emprestimo realizado com sucesso");
 
-                atualizarStatusLivro(bookId, "emprestado", conn);
+                attBookStatus(bookId, "emprestado", conn);
             }
 
         }catch (SQLException e){
@@ -66,12 +66,12 @@ public class BorrowRepository {
 
         try (Connection conn = SQLiteConnection.connect()) {
 
-            if (!livroExiste(bookId, conn)) {
+            if (!bookExists(bookId, conn)) {
                 System.out.println("Livro com ID " + bookId + " não encontrado.");
                 return;
             }
 
-            if (livroDisponivel(bookId, conn)) {
+            if (bookAvailable(bookId, conn)) {
                 System.out.println("Livro não foi emprestado.");
                 return;
             }
@@ -81,7 +81,7 @@ public class BorrowRepository {
                 updateStmt.setString(1, LocalDateTime.now().toString());
                 updateStmt.setInt(2, bookId);
                 updateStmt.executeUpdate();
-                atualizarStatusLivro(bookId, "disponivel", conn);
+                attBookStatus(bookId, "disponivel", conn);
                 System.out.println("Livro devolvido com sucesso.");
             }
 
@@ -90,7 +90,7 @@ public class BorrowRepository {
         }
     }
 
-    private boolean livroExiste(int bookId, Connection conn) throws SQLException {
+    private boolean bookExists(int bookId, Connection conn) throws SQLException {
         String sql = "SELECT id FROM livros WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, bookId);
@@ -99,7 +99,7 @@ public class BorrowRepository {
         }
     }
 
-    private boolean leitorExiste(int readerId, Connection conn) throws SQLException {
+    private boolean readerExists(int readerId, Connection conn) throws SQLException {
         String sql = "SELECT id FROM usuarios WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, readerId);
@@ -108,7 +108,7 @@ public class BorrowRepository {
         }
     }
 
-    private boolean livroDisponivel(int bookId, Connection conn) throws SQLException {
+    private boolean bookAvailable(int bookId, Connection conn) throws SQLException {
         String sql = "SELECT status FROM livros WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, bookId);
@@ -117,7 +117,7 @@ public class BorrowRepository {
         }
     }
 
-    private void atualizarStatusLivro(int bookId, String status, Connection conn) throws SQLException {
+    private void attBookStatus(int bookId, String status, Connection conn) throws SQLException {
         String sql = "UPDATE livros SET status = ? WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, status);

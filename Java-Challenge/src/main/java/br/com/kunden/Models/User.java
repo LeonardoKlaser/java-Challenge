@@ -1,13 +1,13 @@
-package Models;
+package br.com.kunden.Models;
 
-public class Usuario {
+public class User {
     protected String Nome;
     protected String Email;
     protected String Role;
     protected String Document;
     protected Integer id;
 
-    public Usuario(String Nome, String Email, String Role, String document){
+    public User(String Nome, String Email, String Role, String document){
         this.Nome = Nome;
         this.Email = Email;
         this.Role = Role;

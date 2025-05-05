@@ -1,14 +1,14 @@
-package Models;
+package br.com.kunden.Models;
 
-public class Livro {
+public class Book {
     private String title;
     private String author;
     private Long isbn;
     private int id;
-    private Usuario reader;
+    private User reader;
     private String available;
 
-    public Livro(String title, String author, Long isbn){
+    public Book(String title, String author, Long isbn){
         this.title = title;
         this.author = author;
         this.isbn = isbn;
@@ -56,11 +56,11 @@ public class Livro {
         this.available = available;
     }
 
-    public Usuario getReader(){
+    public User getReader(){
         return reader;
     }
 
-    public void setReader(Usuario reader){
+    public void setReader(User reader){
         this.reader = reader;
     };
 }

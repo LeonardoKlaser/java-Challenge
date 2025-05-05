@@ -1,4 +1,4 @@
-package db;
+package br.com.kunden.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -6,7 +6,7 @@ import java.sql.Statement;
 
 public class DBInitializer {
 
-    public static void inicializar() {
+    public static void inicialize() {
         //com try with resourcer a conexao é fechada automaticamento no fim do metodo
         try (Connection conn = SQLiteConnection.connect();
              Statement stmt = conn.createStatement()) {
@@ -55,7 +55,7 @@ public class DBInitializer {
             );
 
         } catch (SQLException e) {
-            System.out.println("Erro ao inicializar banco: " + e.getMessage());
+            System.out.println("Erro ao inicialize banco: " + e.getMessage());
         }
     }
 }

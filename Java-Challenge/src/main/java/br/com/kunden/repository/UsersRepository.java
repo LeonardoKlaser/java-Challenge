@@ -1,7 +1,7 @@
-package repository;
+package br.com.kunden.repository;
 
-import Models.Usuario;
-import db.SQLiteConnection;
+import br.com.kunden.Models.User;
+import br.com.kunden.db.SQLiteConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,8 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UsersRepository {
-    public void adicionar(Usuario usuario){
-        if(buscarPorEmail(usuario.getEmail()) != null){
+    public void addUser(User usuario){
+        if(searchByEmail(usuario.getEmail()) != null){
             System.out.println("Usuario com este email ja existe!");
             return;
         }
@@ -25,11 +25,11 @@ public class UsersRepository {
            stmt.executeUpdate();
             System.out.println("Usuario adicionado ao banco de dados");
         }catch (SQLException e){
-            System.out.println("Erro ao adicionar usuario: " + e.getMessage());
+            System.out.println("Erro ao addNewBook usuario: " + e.getMessage());
         }
     }
 
-    public Usuario buscarPorEmail(String email){
+    public User searchByEmail(String email){
         String sql = "SELECT * FROM usuarios WHERE email = ?";
         try(Connection conn = SQLiteConnection.connect();
             PreparedStatement stmt = conn.prepareStatement(sql))
@@ -37,7 +37,7 @@ public class UsersRepository {
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
-                Usuario user = new Usuario(
+                User user = new User(
                         rs.getString("nome"),
                         rs.getString("email"),
                         rs.getString("tipo"),
@@ -70,7 +70,7 @@ public class UsersRepository {
         return false;
     }
 
-    public Usuario buscarPorId(Integer id){
+    public User searchById(Integer id){
         String sql = "SELECT * FROM usuarios WHERE id = ?";
         try(Connection conn = SQLiteConnection.connect();
             PreparedStatement stmt = conn.prepareStatement(sql))
@@ -78,7 +78,7 @@ public class UsersRepository {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
-                Usuario user = new Usuario(
+                User user = new User(
                         rs.getString("nome"),
                         rs.getString("email"),
                         rs.getString("tipo"),

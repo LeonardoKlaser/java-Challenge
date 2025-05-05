@@ -1,8 +1,8 @@
-package repository;
+package br.com.kunden.repository;
 
-import Models.Usuario;
-import db.SQLiteConnection;
-import Models.Livro;
+import br.com.kunden.Models.User;
+import br.com.kunden.db.SQLiteConnection;
+import br.com.kunden.Models.Book;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookRepository {
-    public void adicionar(Livro livro){
-        if(buscarLivro(livro.getIsbn()) != null){
+    public void addNewBook(Book livro){
+        if(searchBook(livro.getIsbn()) != null){
             System.out.println("Livro ja existe!");
             return;
         }
@@ -28,11 +28,11 @@ public class BookRepository {
             stmt.executeUpdate();
             System.out.println("Livro adicionado ao banco de dados");
         }catch (SQLException e){
-            System.out.println("Erro ao adicionar Livro: " + e.getMessage());
+            System.out.println("Erro ao addNewBook Livro: " + e.getMessage());
         }
     }
 
-    public Livro buscarLivro(Long isbn){
+    public Book searchBook(Long isbn){
         String sql = "SELECT * FROM livros WHERE isbn = ?";
         try(Connection conn = SQLiteConnection.connect();
             PreparedStatement stmt = conn.prepareStatement(sql))
@@ -40,7 +40,7 @@ public class BookRepository {
             stmt.setLong(1, isbn);
             ResultSet rs = stmt.executeQuery();
             if(rs.next()){
-                Livro livro = new Livro(
+                Book livro = new Book(
                         rs.getString("titulo"),
                         rs.getString("autor"),
                         rs.getLong("isbn")
@@ -55,8 +55,8 @@ public class BookRepository {
         return null;
     }
 
-    public List<Livro> listarLivros (boolean isBorrowed, boolean isAvailable, Integer bookId, Integer readerId){
-        List<Livro> livros = new ArrayList<>();
+    public List<Book> listBooks(boolean isBorrowed, boolean isAvailable, Integer bookId, Integer readerId){
+        List<Book> livros = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
 
         // JOIN se readerId for usado
@@ -112,14 +112,14 @@ public class BookRepository {
 
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                Livro livro = new Livro(
+                Book livro = new Book(
                         rs.getString("titulo"),
                         rs.getString("autor"),
                         rs.getLong("isbn")
                 );
                 if(userRepo != null){
                     Integer bookReader = rs.getInt("readerId");
-                    Usuario reader = userRepo.buscarPorId(bookReader);
+                    User reader = userRepo.searchById(bookReader);
                     livro.setReader(reader);
                 }
                 livro.setID(rs.getInt("id"));

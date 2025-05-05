@@ -1,7 +1,7 @@
-package services;
+package br.com.kunden.services;
 
 
-import Models.Usuario;
+import br.com.kunden.Models.User;
 
 public class AuthService {
     private String usuarioAtual;
@@ -10,7 +10,7 @@ public class AuthService {
         return usuarioAtual;
     }
 
-    public void registrarUsuario(Usuario usuario) {
+    public void registerUser(User usuario) {
         usuarioAtual = usuario.getEmail();
     }
 }

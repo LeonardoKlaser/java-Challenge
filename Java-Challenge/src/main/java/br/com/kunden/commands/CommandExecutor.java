@@ -1,9 +1,9 @@
-package commands;
+package br.com.kunden.commands;
 
-import Models.Usuario;
-import repository.UsersRepository;
-import services.AuthService;
-import services.BibliotecaService;
+import br.com.kunden.Models.User;
+import br.com.kunden.repository.UsersRepository;
+import br.com.kunden.services.AuthService;
+import br.com.kunden.services.BibliotecaService;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ public class CommandExecutor {
     String[] actions = {"new-book", "new-admin", "new-reader", "borrow", "return", "listar", "login", "showUser", "help"};
 
 
-    public Map<String, String> formataEntradasHash(String[] dados, Map<String, String> params){
+    public Map<String, String> formatHashEntry(String[] dados, Map<String, String> params){
         for(int i = 0; i < dados.length; i++ ){
             if(Arrays.asList(actions).contains(dados[i].trim())) continue;
             String[] aux = dados[i].split(" ");
@@ -31,7 +31,7 @@ public class CommandExecutor {
         return params;
     }
 
-    public void executar(){
+    public void exec(){
 
 
         System.out.print("Digite o email do admin: ");
@@ -40,14 +40,14 @@ public class CommandExecutor {
         System.out.print("Digite o Cpf do admin: ");
         String cpf = scanner.nextLine();
 
-        Usuario userToLogin = userRepo.buscarPorEmail(emailAdmin);
+        User userToLogin = userRepo.searchByEmail(emailAdmin);
         if(userToLogin == null) System.out.println("Usuario não existe");
 
         if(!userToLogin.getDocument().equals(cpf)){
             System.out.println("Cpf invalido!\nfechando sistema");
             return;
         }
-        auth.registrarUsuario(userToLogin);
+        auth.registerUser(userToLogin);
         System.out.println("Admin logado: " + emailAdmin);
         System.out.println("Digite help para visualizar todos os comandos disponiveis");
 
@@ -59,17 +59,16 @@ public class CommandExecutor {
             String entrada = scanner.nextLine().trim().toLowerCase();
             Map<String, String> params = new HashMap<String, String>();
 
-            params = formataEntradasHash(entrada.split("--"), params);
-            String[] partes = entrada.split("--");
-            String comando = partes[0].trim();
+            params = formatHashEntry(entrada.split("--"), params);
+            String comand = entrada.split("--")[0].trim();
 
 
-            switch (comando) {
+            switch (comand) {
                 case "exit":
                     System.out.println("Saindo do sistema...");
                     return;
                 case "new-book":
-                    biblioteca.AddNewBook(params);
+                    biblioteca.addNewBook(params);
                     break;
                 case "new-admin":
                     biblioteca.newAdmin(params);
@@ -81,10 +80,10 @@ public class CommandExecutor {
                     biblioteca.borrowBook(params);
                     break;
                 case "listar":
-                    biblioteca.ListaLivros(params);
+                    biblioteca.listBooks(params);
                     break;
                 case "return":
-                    biblioteca.DevolveLivro(Integer.parseInt(partes[1]));
+                    biblioteca.returnBook(params);
                     break;
                 case "login":
                     biblioteca.Login(params);

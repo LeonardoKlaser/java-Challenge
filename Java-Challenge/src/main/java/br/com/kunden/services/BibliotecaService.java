@@ -1,13 +1,12 @@
-package services;
+package br.com.kunden.services;
 
-import Models.Livro;
-import Models.Usuario;
-import com.fasterxml.jackson.core.util.InternCache;
+import br.com.kunden.Models.Book;
+import br.com.kunden.Models.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import repository.BookRepository;
-import repository.BorrowRepository;
-import repository.UsersRepository;
+import br.com.kunden.repository.BookRepository;
+import br.com.kunden.repository.BorrowRepository;
+import br.com.kunden.repository.UsersRepository;
 
 import java.util.*;
 
@@ -24,7 +23,7 @@ public class BibliotecaService {
     //region userInfo
     public void showUser(){
         try{
-            Usuario userToShow = userRepo.buscarPorEmail(auth.getUsuarioAtual());
+            User userToShow = userRepo.searchByEmail(auth.getUsuarioAtual());
             //retornar json
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
             String json = "";
@@ -50,8 +49,8 @@ public class BibliotecaService {
 
             String email = params.get("email");
 
-            Usuario userLogin = userRepo.buscarPorEmail(email);
-            if(userLogin != null) auth.registrarUsuario(userLogin);
+            User userLogin = userRepo.searchByEmail(email);
+            if(userLogin != null) auth.registerUser(userLogin);
             System.out.println("Usuario " + userLogin.getNome() + " logado");
             return;
         } catch (Exception e) {
@@ -61,7 +60,7 @@ public class BibliotecaService {
     //endregion
 
     //region Books
-    public void AddNewBook(Map<String, String> params){
+    public void addNewBook(Map<String, String> params){
 
         if(!userRepo.isAdmin(auth.getUsuarioAtual())){
             System.out.println("Somente admins pode criar livros");
@@ -83,8 +82,8 @@ public class BibliotecaService {
 
         Long bn = Long.parseLong(isbn);
 
-        Livro newBook = new Livro(title, author, bn);
-        bookRepo.adicionar(newBook);
+        Book newBook = new Book(title, author, bn);
+        bookRepo.addNewBook(newBook);
 
         //retornar json
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -121,8 +120,8 @@ public class BibliotecaService {
         String email = params.get("email");
         String document = params.get("document");
 
-        Usuario newAdmin = new Usuario(nome, email, "admin", document);
-        userRepo.adicionar(newAdmin);
+        User newAdmin = new User(nome, email, "admin", document);
+        userRepo.addUser(newAdmin);
 
         //retornar json
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -158,8 +157,8 @@ public class BibliotecaService {
         String email = params.get("email");
         String document = params.get("document");
 
-        Usuario newReader = new Usuario(nome, email, "leitor", document);
-        userRepo.adicionar(newReader);
+        User newReader = new User(nome, email, "leitor", document);
+        userRepo.addUser(newReader);
 
         //retornar json
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -189,11 +188,10 @@ public class BibliotecaService {
             Integer readerId = params.containsKey("reader-id") ? Integer.parseInt(params.get("reader-id")) : null;
 
             if(readerId != null && !userRepo.isAdmin(auth.getUsuarioAtual())) System.out.println("Somente admins podem enviar readerId no parametro!");
-            Usuario user = userRepo.buscarPorEmail(auth.getUsuarioAtual());
+            User user = userRepo.searchByEmail(auth.getUsuarioAtual());
             if(readerId == null) readerId = user.getId();
 
             borrowRepo.borrowBook(bookId, readerId);
-            System.out.println("Livro emprestado!");
         }catch (Exception e){
             System.out.println("Erro ao emprestar livro: " +  e.getMessage());
         }
@@ -201,8 +199,8 @@ public class BibliotecaService {
     }
     //endregion
 
-    //region listarLivros
-    public void ListaLivros(Map<String, String> params){
+    //region listBooks
+    public void listBooks(Map<String, String> params){
 
         // Definir as chaves válidas
         Set<String> chavesValidas = new HashSet<>(Arrays.asList("is-borrowed", "is-available", "book-id", "reader-id"));
@@ -221,8 +219,8 @@ public class BibliotecaService {
         Integer bookId = params.containsKey("book-id") ? Integer.parseInt(params.get("book-id")) : null;
         Integer readerId = params.containsKey("reader-id") ? Integer.parseInt(params.get("reader-id")) : null;
 
-        List<Livro> livros = bookRepo.listarLivros(isBorrowed, isAvailable, bookId, readerId);
-        for(Livro livro : livros){
+        List<Book> livros = bookRepo.listBooks(isBorrowed, isAvailable, bookId, readerId);
+        for(Book livro : livros){
 
             //retornar json
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -239,8 +237,18 @@ public class BibliotecaService {
     //endregion
 
     //region devolverLivro
-    public void DevolveLivro(int bookId){
+    public void returnBook(Map<String, String> params){
         try{
+            // Verifica se as chaves obrigatórias existem e se não há chaves extras
+            Set<String> chavesObrigatorias = new HashSet<>(Arrays.asList("book-id"));
+
+            if (!params.keySet().containsAll(chavesObrigatorias) || params.size() != chavesObrigatorias.size()) {
+                System.out.println("Parâmetros inválidos! Informe apenas: --book-id");
+                return;
+            }
+
+
+            Integer bookId = Integer.parseInt(params.get("book-id"));
             borrowRepo.returnBook(bookId);
         }catch (Exception e){
             System.out.println("Erro ao devolver livro: " + e.getMessage());

@@ -1,4 +1,4 @@
-package db;
+package br.com.kunden.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
