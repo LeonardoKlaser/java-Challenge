@@ -1,13 +1,13 @@
 package commands;
 
-import Storage.DataStore;
-import Models.Admin;
-import Models.Leitor;
 import Models.Usuario;
 import repository.UsersRepository;
 import services.AuthService;
 import services.BibliotecaService;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class CommandExecutor {
@@ -15,47 +15,53 @@ public class CommandExecutor {
     AuthService auth = new AuthService();
     BibliotecaService biblioteca = new BibliotecaService(auth);
     UsersRepository userRepo = new UsersRepository();
+    String[] actions = {"new-book", "new-admin", "new-reader", "borrow", "return", "listar", "login", "showUser", "help"};
 
-    private static String[] formataEntradas(String[] dados){
+
+    public Map<String, String> formataEntradasHash(String[] dados, Map<String, String> params){
         for(int i = 0; i < dados.length; i++ ){
-            String[] chaveValor = dados[i].split(" ", 2);
-            dados[i] = dados[i].replaceAll(chaveValor[0],"" ).replaceAll("\"", "").trim();
+            if(Arrays.asList(actions).contains(dados[i].trim())) continue;
+            String[] aux = dados[i].split(" ");
+            String chave = aux[0];
+            String[] valoraux = Arrays.copyOfRange(aux, 1, aux.length);
+            String valor = String.join(" ",valoraux);
+            valor = valor.replaceAll("^\"|\"$", "");
+            params.put(chave, valor);
         }
-        return dados;
+        return params;
     }
 
     public void executar(){
 
-        if (DataStore.getInstance().getUsuarios().isEmpty()) {
-            System.out.print("Digite o email do admin: ");
-            String emailAdmin = scanner.nextLine();
 
-            System.out.print("Digite o Cpf do admin: ");
-            String cpf = scanner.nextLine();
+        System.out.print("Digite o email do admin: ");
+        String emailAdmin = scanner.nextLine();
 
-            Usuario userToLogin = userRepo.buscarPorEmail(emailAdmin);
-            System.out.println(userToLogin.getRole());
-            if(userToLogin.getRole().equals("admin")){
-                if(!userToLogin.getDocument().equals(cpf)){
-                    System.out.println("Cpf invalido!\nfechando sistema");
-                    return;
-                }
-                auth.registrarUsuario(userToLogin);
-                System.out.println("Admin logado: " + emailAdmin);
-            }else{
-                System.out.println("Este usuario não é um admin ou não existe: " + emailAdmin + "\nfechando sistema");
-                return;
-            }
+        System.out.print("Digite o Cpf do admin: ");
+        String cpf = scanner.nextLine();
 
+        Usuario userToLogin = userRepo.buscarPorEmail(emailAdmin);
+        if(userToLogin == null) System.out.println("Usuario não existe");
+
+        if(!userToLogin.getDocument().equals(cpf)){
+            System.out.println("Cpf invalido!\nfechando sistema");
+            return;
         }
+        auth.registrarUsuario(userToLogin);
+        System.out.println("Admin logado: " + emailAdmin);
+        System.out.println("Digite help para visualizar todos os comandos disponiveis");
+
+
+
 
         while (true) {
             System.out.print("> ");
             String entrada = scanner.nextLine().trim().toLowerCase();
+            Map<String, String> params = new HashMap<String, String>();
 
+            params = formataEntradasHash(entrada.split("--"), params);
             String[] partes = entrada.split("--");
             String comando = partes[0].trim();
-            formataEntradas(partes);
 
 
             switch (comando) {
@@ -63,44 +69,35 @@ public class CommandExecutor {
                     System.out.println("Saindo do sistema...");
                     return;
                 case "new-book":
-                    biblioteca.AddNewBook(partes[1], partes[2], partes[3]);
+                    biblioteca.AddNewBook(params);
                     break;
                 case "new-admin":
-                    biblioteca.newAdmin(partes[1], partes[2], partes[3]);
+                    biblioteca.newAdmin(params);
                     break;
                 case "new-reader":
-                    biblioteca.newReader(partes[1], partes[2], partes[3]);
+                    biblioteca.newReader(params);
                     break;
                 case "borrow":
-                    if(partes.length == 2){
-                        if(!DataStore.getInstance().getLeitores().containsKey(auth.getUsuarioAtual().hashCode())) {
-                            System.out.println("Necessário ser um leitor para retirar livro sem reader-id informado");
-                            break;
-                        }
-                        Leitor readerAtual = DataStore.getInstance().getLeitores().get(auth.getUsuarioAtual().hashCode());
-                        biblioteca.borrowBook(Integer.parseInt(partes[1]), readerAtual.getId());
-                        break;
-                    }
-                    if(!DataStore.getInstance().getAdmins().containsKey(auth.getUsuarioAtual().hashCode())){
-                        System.out.println("Necessário ser Admin para chamar este comando passando reader-id");
-                        break;
-                    }
-                    biblioteca.borrowBook(Integer.parseInt(partes[1]), Integer.parseInt(partes[2]));
-                    break;
-                case "teste":
-                    for(int i=0; i< partes.length; i++){
-                        System.out.println(partes[i] + " - " + i);
-                    }
+                    biblioteca.borrowBook(params);
                     break;
                 case "listar":
-                    biblioteca.ListaLivros();
+                    biblioteca.ListaLivros(params);
                     break;
                 case "return":
                     biblioteca.DevolveLivro(Integer.parseInt(partes[1]));
                     break;
+                case "login":
+                    biblioteca.Login(params);
+                    break;
+                case "showuser":
+                    biblioteca.showUser();
+                    break;
+                case "help":
+                    biblioteca.ShowCommands();
+                    break;
                 default:
                     System.out.println("Comando inválido.");
-                    //mostrarComandos();
+                    biblioteca.ShowCommands();
                     break;
             };
         }

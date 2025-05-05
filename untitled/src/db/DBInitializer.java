@@ -45,7 +45,14 @@ public class DBInitializer {
                          ");"
             );
 
-            System.out.println("Banco inicializado com sucesso!");
+            //seta o admin da biblioteca
+            stmt.execute(
+                    "INSERT INTO usuarios (nome, email, tipo, cpf) " +
+                            "SELECT 'Admin', 'admin@gmail', 'admin', '123456789' " +
+                            "WHERE NOT EXISTS (" +
+                            "   SELECT 1 FROM usuarios WHERE email = 'admin@gmail'" +
+                            ");"
+            );
 
         } catch (SQLException e) {
             System.out.println("Erro ao inicializar banco: " + e.getMessage());

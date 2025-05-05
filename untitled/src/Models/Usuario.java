@@ -5,12 +5,14 @@ public class Usuario {
     protected String Email;
     protected String Role;
     protected String Document;
+    protected Integer id;
 
     public Usuario(String Nome, String Email, String Role, String document){
         this.Nome = Nome;
         this.Email = Email;
         this.Role = Role;
         this.Document = document;
+        this.id = null;
     }
 
     public String getNome() {
@@ -41,6 +43,13 @@ public class Usuario {
         return Document;
     }
 
+    public void setId (Integer id){
+        this.id = id;
+    }
+
+    public Integer getId(){
+        return this.id;
+    }
     public void setDocument(String document){
         this.Document = document;
     }

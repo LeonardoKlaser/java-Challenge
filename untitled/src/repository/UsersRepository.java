@@ -21,7 +21,7 @@ public class UsersRepository {
            stmt.setString(1,usuario.getNome());
            stmt.setString(2, usuario.getEmail());
            stmt.setString(3, usuario.getRole());
-           stmt.setString(4, "03469248044");
+           stmt.setString(4, usuario.getDocument());
            stmt.executeUpdate();
             System.out.println("Usuario adicionado ao banco de dados");
         }catch (SQLException e){
@@ -43,6 +43,7 @@ public class UsersRepository {
                         rs.getString("tipo"),
                         rs.getString("cpf")
                 );
+                user.setId(rs.getInt("id"));
                 return user;
             }
         }catch (SQLException e){
@@ -68,4 +69,28 @@ public class UsersRepository {
         }
         return false;
     }
+
+    public Usuario buscarPorId(Integer id){
+        String sql = "SELECT * FROM usuarios WHERE id = ?";
+        try(Connection conn = SQLiteConnection.connect();
+            PreparedStatement stmt = conn.prepareStatement(sql))
+        {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                Usuario user = new Usuario(
+                        rs.getString("nome"),
+                        rs.getString("email"),
+                        rs.getString("tipo"),
+                        rs.getString("cpf")
+                );
+                user.setId(rs.getInt("id"));
+                return user;
+            }
+        }catch (SQLException e){
+            System.out.println("Erro ao buscar usuario: " + e.getMessage());
+        }
+        return null;
+    }
+
 }
